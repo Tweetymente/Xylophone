@@ -1,9 +1,9 @@
 //
-//  AppDelegate.swift
+//  GameBrain.swift
 //  Xylophone
 //
-//  Created by Angela Yu on 28/06/2019.
-//  Copyright © 2019 The App Brewery. All rights reserved.
+//  Created by Tweety iMac on 14/07/2023.
+//  Copyright © 2023 The App Brewery. All rights reserved.
 //
 
 import UIKit
