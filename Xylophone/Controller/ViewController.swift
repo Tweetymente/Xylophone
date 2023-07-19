@@ -29,11 +29,11 @@ class ViewController: UIViewController {
         }
         
 
-    
     func playSound(soundName: String) {
         let url = Bundle.main.url(forResource: soundName, withExtension: "wav")
         player = try! AVAudioPlayer(contentsOf: url!)
         player.play()
+        
     }
          
     
@@ -88,11 +88,11 @@ class ViewController: UIViewController {
     func makeMove(_ color: UIButton) {
         // don't let the player touch stuff while in watch mode
         guard isWatching == false else { return }
-
+        
         if sequence[sequenceIndex] == color {
             // they were correct! Increment the sequence index.
             sequenceIndex += 1
-
+            
             if sequenceIndex == sequence.count {
                 // they made it to the end; add another button to the sequence
                 addToSequence()
@@ -100,9 +100,13 @@ class ViewController: UIViewController {
         } else {
             // they were wrong! End the game.
             
-        print("Play Again")            }
-    }
-    
+            _ = UIAlertAction(title: "Play Again", style: .default) {_ in
+                    self.startNewGame()
+                }
+
+           
+            }
+        }
         
         
         // MARK: - Properties
@@ -125,32 +129,31 @@ class ViewController: UIViewController {
         
         
         
-        func playNextSequenceItem() {
-            // stop flashing if we've finished our sequence
-            guard sequenceIndex < sequence.count else {
-                isWatching = false
-                sequenceIndex = 0
-                return
-            }
-            
-            // otherwise move our sequence forward
-            _ = sequence[sequenceIndex]
-            sequenceIndex += 1
-            
-            // wait a fraction of a second before flashing
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                // mark this button as being active
-                
-                
-                // wait again
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    // deactivate the button and flash again
-                    
-                    self?.playNextSequenceItem()
-                }
+    func playNextSequenceItem() {
+        // stop flashing if we've finished our sequence
+        guard sequenceIndex < sequence.count else {
+            isWatching = false
+            sequenceIndex = 0
+            return
+        }
+
+        // otherwise move our sequence forward
+        let button = sequence[sequenceIndex]
+        sequenceIndex += 1
+
+        // wait a fraction of a second before flashing
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            // mark this button as being active
+            button.alpha = 0.5
+
+            // wait again
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                // deactivate the button and flash again
+                button.alpha = 0.5
+                self?.playNextSequenceItem()
             }
         }
-            
+    }
 
             
             
