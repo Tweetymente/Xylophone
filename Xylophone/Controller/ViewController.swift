@@ -1,5 +1,5 @@
 //
-//  GameBrain.swift
+//  ViewController.swift
 //  Xylophone
 //
 //  Created by Tweety iMac on 14/07/2023.
@@ -12,76 +12,172 @@ import AVFoundation
 class ViewController: UIViewController {
     
     var player: AVAudioPlayer!
-    // MARK: -Outlets
-    
-    @IBOutlet weak var blueButton: ColoredButton!
-    
-    // MARK: - Properties
-    
-    var timer: Timer?
-    
-    var gameBrain = GameBrain()
-    
     override func viewDidLoad() {
+            super.viewDidLoad()
+        startNewGame()
         
-        super.viewDidLoad()
-        blueButton.backgroundColor = UIColor(hue: 198/360, saturation: 80/100, brightness: 70/100, alpha: 1.0)
-        resetForNewDemo()
     }
-    @IBAction func coloredButtonTapped (_ sender: Any){
-        print("Button tapped")
-    }
-    
+     
 
-    private func resetForNewDemo (){ //método para que se reinicie una nueva secuencia de un nuevo nivel
-        timer?.invalidate() //para frenar otro temporizado que estuviera corriedo
-        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(demonstrateCycle), userInfo: nil, repeats: false)
-    } //la sintaxis del "selector" con # es para poner una función (demonstrateCycle) dentro de otra funcion (resetForNewDemo)
-   
-    @objc private func demonstrateCycle(){ //método de la secuencia que se le muestra primero al jugador
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(animateButton), userInfo: nil, repeats: true)
-    }
-    @objc private func animateButton() {
-        blueButton.lightUp()
-        timer?.invalidate()
-        timer = nil
-        
-        
-    }
-
-
-   
-    
-    @IBAction func keyPressed(_ sender: UIButton) {
-        
-        playSound(soundName: sender.currentTitle!)
-        
-        //Reduces the sender's (the button that got pressed) opacity to half.
-        sender.alpha = 0.5
-        
-        //Code should execute after 0.2 second delay.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            //Bring's sender's opacity back up to fully opaque.
-            sender.alpha = 1.0
+        @IBAction func keyPressed(_ sender: UIButton) {
+            
+            playSound(soundName: sender.currentTitle!)
+            sender.alpha = 0.5
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                sender.alpha = 1.0
+        }
         }
         
-    }
+
     
     func playSound(soundName: String) {
         let url = Bundle.main.url(forResource: soundName, withExtension: "wav")
         player = try! AVAudioPlayer(contentsOf: url!)
         player.play()
-        
     }
+         
+    
+    
+    
+        
+        // MARK: -Outlets
+        
+    @IBOutlet weak var blue: UIButton!
+    @IBOutlet weak var red: UIButton!
    
-        
-        // Do any additional setup after loading the view.
-        
+    @IBOutlet weak var orange: UIButton!
+    
+    @IBOutlet weak var yellow: UIButton!
+    
+    @IBOutlet weak var green: UIButton!
+    
+    @IBOutlet weak var indigo: UIButton!
+    
+    
+    @IBOutlet weak var purple: UIButton!
+    
+   
+
+    
   
-        
-        
+    @IBAction func redTapped() {
+        makeMove(red)
     }
+
+    @IBAction func yellowTapped() {
+        makeMove(yellow)
+    }
+
+    @IBAction func greenTapped() {
+        makeMove(green)
+    }
+
+    @IBAction func blueTapped() {
+        makeMove(blue)
+    }
+    @IBAction func purpleTapped() {
+        makeMove(purple)
+    }
+    @IBAction func orangeTapped(){
+        makeMove(orange)
+    }
+    @IBAction func indigoTapped(){
+        makeMove(indigo)
+    }
+    
+    func makeMove(_ color: UIButton) {
+        // don't let the player touch stuff while in watch mode
+        guard isWatching == false else { return }
+
+        if sequence[sequenceIndex] == color {
+            // they were correct! Increment the sequence index.
+            sequenceIndex += 1
+
+            if sequenceIndex == sequence.count {
+                // they made it to the end; add another button to the sequence
+                addToSequence()
+            }
+        } else {
+            // they were wrong! End the game.
+            
+        print("Play Again")            }
+    }
+    
+        
+        
+        // MARK: - Properties
+  
+    
+        
+        var isWatching = true {
+            didSet {
+                if isWatching {
+                    print("WATCH!")
+                } else {
+                    print("REPEAT!")
+                }
+            }
+        }
+        
+        
+        var sequence = [UIButton]()
+        var sequenceIndex = 0
+        
+        
+        
+        func playNextSequenceItem() {
+            // stop flashing if we've finished our sequence
+            guard sequenceIndex < sequence.count else {
+                isWatching = false
+                sequenceIndex = 0
+                return
+            }
+            
+            // otherwise move our sequence forward
+            _ = sequence[sequenceIndex]
+            sequenceIndex += 1
+            
+            // wait a fraction of a second before flashing
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                // mark this button as being active
+                
+                
+                // wait again
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // deactivate the button and flash again
+                    
+                    self?.playNextSequenceItem()
+                }
+            }
+        }
+            
+
+            
+            
+    func addToSequence() {
+        let colors: [UIButton] = [red, yellow, green, blue, indigo, orange, purple]
+
+        for _ in 1...10 {
+            sequence.append(colors.randomElement()!)
+        }
+
+        sequenceIndex = 0
+        isWatching = true
+
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + 1) {
+            self.playNextSequenceItem()
+        }
+    }
+        
+        func startNewGame() {
+            sequence.removeAll()
+            addToSequence()
+        }
+    
+  
+    
+    
+}
 
 
 
