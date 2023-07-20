@@ -12,6 +12,7 @@ import AVFoundation
 class ViewController: UIViewController {
     
     var player: AVAudioPlayer!
+    
     override func viewDidLoad() {
             super.viewDidLoad()
         startNewGame()
@@ -22,12 +23,14 @@ class ViewController: UIViewController {
         @IBAction func keyPressed(_ sender: UIButton) {
             
             playSound(soundName: sender.currentTitle!)
+            print(sender.currentTitle!)
             sender.alpha = 0.5
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 sender.alpha = 1.0
+                //self.playSound(soundName: "E")
         }
         }
-        
+  
 
     func playSound(soundName: String) {
         let url = Bundle.main.url(forResource: soundName, withExtension: "wav")
@@ -35,9 +38,8 @@ class ViewController: UIViewController {
         player.play()
         
     }
-         
-    
-    
+   
+   
     
         
         // MARK: -Outlets
@@ -80,6 +82,7 @@ class ViewController: UIViewController {
     }
     @IBAction func orangeTapped(){
         makeMove(orange)
+       
     }
     @IBAction func indigoTapped(){
         makeMove(indigo)
@@ -99,12 +102,13 @@ class ViewController: UIViewController {
             }
         } else {
             // they were wrong! End the game.
-            
-            _ = UIAlertAction(title: "Play Again", style: .default) {_ in
-                    self.startNewGame()
-                }
-
-           
+            let alertController = UIAlertController(title: "Game Over", message: "You lost!", preferredStyle: .alert)
+                    let restartAction = UIAlertAction(title: "Restart", style: .default) { _ in
+                        // Restart the game.
+                        self.startNewGame()
+                    }
+                    alertController.addAction(restartAction)
+                    present(alertController, animated: true)
             }
         }
         
@@ -140,17 +144,24 @@ class ViewController: UIViewController {
         // otherwise move our sequence forward
         let button = sequence[sequenceIndex]
         sequenceIndex += 1
-
+        
         // wait a fraction of a second before flashing
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             // mark this button as being active
             button.alpha = 0.5
+            button.setTitle("Activo", for: .selected)
+            self?.playSound(soundName: button.currentTitle!)
+            
+               
 
-            // wait again
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        // wait again
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 // deactivate the button and flash again
-                button.alpha = 0.5
-                self?.playNextSequenceItem()
+                
+            button.setTitle("desactivado", for: .disabled)
+            button.alpha = 1.0
+            self?.playNextSequenceItem()
+                
             }
         }
     }
@@ -160,8 +171,14 @@ class ViewController: UIViewController {
     func addToSequence() {
         let colors: [UIButton] = [red, yellow, green, blue, indigo, orange, purple]
 
-        for _ in 1...10 {
+        for _ in 1...1 {
+            
             sequence.append(colors.randomElement()!)
+            
+            
+            
+            
+            
         }
 
         sequenceIndex = 0
